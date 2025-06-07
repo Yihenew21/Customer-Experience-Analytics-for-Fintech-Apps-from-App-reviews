@@ -39,7 +39,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install pytest-cov
-          python -m spacy download en_core_web_sm  # Add this to download the Spacy model
+          python -m spacy download en_core_web_sm
       - name: Running tests with pytest
         run: |
           pytest tests/ --cov=./ --cov-report=xml
@@ -50,3 +50,5 @@ jobs:
         with:
           files: ./coverage.xml
           fail_ci_if_error: true
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
