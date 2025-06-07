@@ -2,16 +2,18 @@ name: Python CI
 
 on:
   push:
+    branches: ["main", "task-*"]
   pull_request:
+    branches: ["main", "task-*"]
 
 jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
       - name: Checking out repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setting up Python environment
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
       - name: Installing flake8
@@ -27,9 +29,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checking out repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setting up Python environment
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
       - name: Installing dependencies
@@ -37,13 +39,14 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install pytest-cov
+          python -m spacy download en_core_web_sm  # Add this to download the Spacy model
       - name: Running tests with pytest
         run: |
           pytest tests/ --cov=./ --cov-report=xml
         env:
           PYTHONPATH: .
       - name: Uploading coverage report
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           files: ./coverage.xml
-          fail_ci_if_error: false
+          fail_ci_if_error: true
