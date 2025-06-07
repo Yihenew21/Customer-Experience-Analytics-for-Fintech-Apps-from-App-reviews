@@ -1,113 +1,199 @@
 # Customer Experience Analytics for Fintech Apps
 
-This repository contains the solution for the "Customer Experience Analytics for Fintech Apps" challenge, part of the 10Academy Kaim Week 5 training program. The project analyzes Google Play Store reviews for three Ethiopian banks—Commercial Bank of Ethiopia (CBE), Bank of Abyssinia (BOA), and Dashen Bank—to derive insights for improving their mobile apps.
+This project analyzes user reviews of mobile banking apps for three Ethiopian banks: **Commercial Bank of Ethiopia**, **Bank of Abyssinia**, and **Dashen Bank**. The goal is to extract customer experience insights through data collection, preprocessing, sentiment analysis, and thematic analysis, meeting KPIs of 90%+ sentiment score coverage and identifying 3+ themes per bank.
 
-## Project Overview
+## Project Structure
 
-The challenge comprises two tasks:
+- `data/raw/`: Raw scraped reviews.
+- `data/processed/`: Cleaned and processed CSVs (e.g., `cleaned_reviews.csv`, `sentiment_reviews.csv`).
+- `figures/`: Visualization PNGs (e.g., `sentiment_distribution.png`).
+- `scripts/task1_data_collection/`: Task 1 scripts for scraping and preprocessing.
+- `scripts/data/`: Task 2 scripts for analysis and visualization.
+- `scripts/notebooks/`: Jupyter notebooks for exploration (e.g., `task2_analysis.ipynb`).
+- `tests/`: Unit tests for Task 2.
+- `docs/`: Documentation, including LaTeX report (`report.tex`).
+- `requirements.txt`: Python dependencies.
+- `.github/workflows/`: CI/CD configuration for GitHub Actions.
 
-1. **Task 1: Data Collection and Preprocessing** (Completed): Scrape 1,200+ reviews (400+ per bank), preprocess them, and validate data quality.
-2. **Task 2: Sentiment and Thematic Analysis** (Pending): Perform sentiment analysis and identify key themes in reviews.
+## Prerequisites
 
-The repository uses Git branches (`task-1`, `task-2`) and includes scripts, tests, notebooks, visualizations, and documentation.
+- **Python**: 3.13
+- **OS**: Windows (adaptable to Linux/macOS)
+- **Virtual Environment**: Recommended
+- **Dependencies**: Listed in `requirements.txt`
+- **Spacy Model**: `en_core_web_sm`
 
-## Task 1: Data Collection and Preprocessing
-
-### Objectives
-
-- Scrape at least 400 reviews per bank (1,200+ total) from the Google Play Store.
-- Preprocess reviews into `cleaned_reviews.csv` with columns: `bank`, `review`, `rating`, `date`, `source`.
-- Ensure <5% missing data and validate with unit tests.
-
-### Deliverables
-
-- **Scripts**:
-  - `scripts/task1_data_collection/scrape_reviews.py`: Scrapes reviews using `google-play-scraper`, with empty review handling and rate limit delays.
-  - `scripts/task1_data_collection/preprocess_reviews.py`: Combines raw CSVs, removes duplicates, normalizes dates, and saves `cleaned_reviews.csv`.
-- **Tests**:
-  - `tests/test_scrape_reviews.py`: Validates scraping (CBE), raw CSVs (400+ reviews per bank), and cleaned CSV (1,200+ reviews, <5% missing data).
-- **Notebook**:
-  - `scripts/notebooks/task1_exploration.ipynb`: Performs exploratory data analysis (EDA), generating plots in `figures/` (e.g., rating distributions).
-- **Visualizations**:
-  - `figures/rating_distribution.png`: Overall rating histogram.
-  - `figures/avg_rating_per_bank.png`: Average ratings per bank.
-  - `figures/review_length_distribution.png`: Review length histogram.
-- **Data** (Ignored in Git):
-  - `data/raw/*.csv`: Raw reviews per bank.
-  - `data/processed/cleaned_reviews.csv`: Cleaned dataset.
-- **Documentation**:
-  - This README and commit history.
-
-### Results
-
-- Scraped 1,200+ reviews (400+ per bank for CBE, BOA, Dashen).
-- Generated `cleaned_reviews.csv` with <5% missing data, valid ratings (1–5), and dates (YYYY-MM-DD).
-- Passed all unit tests with descriptive messages.
-- Conducted EDA, confirming data quality and generating insights (e.g., rating distributions, review lengths) for Task 2.
-- **Challenges**:
-  - Resolved CBE scraping failure (`com.cbe.birr` app ID) by adding empty review handling and delays.
-  - Fixed Matplotlib style error in Notebook (replaced `seaborn` with `sns.set_theme()`).
-
-### Setup Instructions
+## Setup
 
 1. **Clone Repository**:
 
-```bash
-   git clone <repository-url>
+   ```bash
+   git clone https://github.com/Yihenew21/Customer-Experience-Analytics-for-Fintech-Apps-from-App-reviews.git
    cd Customer-Experience-Analytics-for-Fintech-Apps-from-App-reviews
-```
+   ```
 
-2. **Set Up Virtual Environment**:
+2. **Create Virtual Environment**:
 
-```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: .\venv\Scripts\activate
-```
+   ```bash
+   python -m venv venv
+   .\venv\Scripts\activate  # Windows
+   ```
 
 3. **Install Dependencies**:
 
-```bash
+   ```bash
    pip install -r requirements.txt
-```
+   ```
 
-4. **Run Scripts**:
+4. **Download Spacy Model**:
+
+   ```bash
+   python -m spacy download en_core_web_sm
+   ```
+
+5. **Create Directories**:
+   ```bash
+   mkdir -p data/raw data/processed figures scripts/task1_data_collection scripts/notebooks docs
+   ```
+
+## Task 1: Data Collection and Preprocessing
+
+Collects and cleans Google Play Store reviews for the three banks’ mobile apps.
+
+### Scripts
+
+- `scripts/task1_data_collection/scrape_reviews.py`: Scrapes reviews using `google-play-scraper`.
+- `scripts/task1_data_collection/preprocess_reviews.py`: Cleans reviews (removes duplicates, nulls).
+
+### Run Task 1
+
+1. Update `scrape_reviews.py` with correct app IDs (e.g., `com.cbe.mobilebanking`).
+2. Execute:
+   ```bash
+   python scripts/task1_data_collection/scrape_reviews.py
+   python scripts/task1_data_collection/preprocess_reviews.py
+   ```
+
+### Outputs
+
+- `data/raw/reviews.csv`: Raw scraped reviews.
+- `data/processed/cleaned_reviews.csv`: Cleaned reviews with columns `bank`, `review`, `rating`, `date`.
+
+### Verify
 
 ```bash
-python scripts/task1_data_collection/scrape_reviews.py
-python scripts/task1_data_collection/preprocess_reviews.py
+python -c "import pandas as pd; df = pd.read_csv('data/processed/cleaned_reviews.csv'); print(df.groupby('bank').size())"
 ```
 
-5. **Run Tests**:
+Expected: Counts for Commercial Bank of Ethiopia, Bank of Abyssinia, Dashen Bank.
+
+## Task 2: Sentiment and Thematic Analysis
+
+Analyzes reviews for sentiment and themes, handling Amharic reviews via translation.
+
+### Scripts
+
+- `scripts/data/preprocess_nlp.py`: Preprocesses reviews with Spacy, translates Amharic using `deep-translator`.
+- `scripts/data/sentiment_analysis.py`: Applies VADER and DistilBERT sentiment analysis.
+- `scripts/data/thematic_analysis.py`: Identifies 3+ themes per bank using TF-IDF.
+- `scripts/data/visualize_results.py`: Generates sentiment and theme visualizations.
+
+### Run Task 2
+
+1. Ensure `cleaned_reviews.csv` contains all three banks.
+2. Execute:
+   ```bash
+   python scripts/data/preprocess_nlp.py
+   python scripts/data/sentiment_analysis.py
+   python scripts/data/thematic_analysis.py
+   python scripts/data/visualize_results.py
+   ```
+
+### Outputs
+
+- `data/processed/preprocessed_reviews.csv`: Preprocessed reviews with tokens.
+- `data/processed/sentiment_reviews.csv`: Review-level sentiment scores.
+- `data/processed/sentiment_aggregates.csv`: Aggregated sentiment by bank and rating.
+- `data/processed/thematic_reviews.csv`: Review-level themes.
+- `data/processed/theme_aggregates.csv`: Aggregated theme counts by bank.
+- `data/processed/amharic_reviews.csv`: Untranslated Amharic reviews.
+- `figures/sentiment_distribution.png`: Sentiment distribution by bank.
+- `figures/theme_counts.png`: Theme counts by bank.
+
+### Verify
+
+- Check banks:
+  ```bash
+  python -c "import pandas as pd; df = pd.read_csv('data/processed/sentiment_reviews.csv'); print(df['bank'].unique())"
+  ```
+  Expected: `['Commercial Bank of Ethiopia', 'Bank of Abyssinia', 'Dashen Bank']`
+- Check sentiment coverage:
+  ```bash
+  python -c "import pandas as pd; df = pd.read_csv('data/processed/sentiment_reviews.csv'); print(f'Coverage: {len(df.dropna(subset=[\"vader_label\", \"distilbert_label\"]))/len(df):.2%}')"
+  ```
+  Expected: ≥90%
+- Check themes:
+  ```bash
+  python -c "import pandas as pd; df = pd.read_csv('data/processed/theme_aggregates.csv'); print(df.groupby('bank')['themes'].nunique())"
+  ```
+  Expected: ≥3 per bank
+
+## Tests
+
+Run unit tests for Task 2:
 
 ```bash
-pytest tests/test_scrape_reviews.py -vs
+pytest tests/ -v
 ```
 
-6. **Run Notebook**:
+- `tests/test_sentiment_analysis.py`: Tests sentiment analysis.
+- `tests/test_thematic_analysis.py`: Tests thematic analysis.
+
+## Exploratory Analysis
+
+Explore results in:
+
+- `scripts/notebooks/task2_analysis.ipynb`: Visualizes sentiment, themes, and provides insights.
+
+Run:
 
 ```bash
 jupyter notebook
-# Open scripts/notebooks/task1_exploration.ipynb
 ```
 
-## Directory Structure
+## Documentation
 
-```
-Customer-Experience-Analytics-for-Fintech-Apps-from-App-reviews/
-├── data/
-│ ├── raw/ # Ignored: raw CSVs per bank
-│ ├── processed/ # Ignored: cleaned_reviews.csv
-├── scripts/
-│ ├── task1_data_collection/
-│ │ ├── scrape_reviews.py
-│ │ ├── preprocess_reviews.py
-├── notebooks/
-│ │ ├── data_exploration.ipynb
-├── tests/
-│ ├── test_scrape_reviews.py
-├── figures/ # EDA plots
-├── .gitignore
-├── README.md
-├── requirements.txt
+- `docs/report.tex`: LaTeX report summarizing methodology, results, and recommendations.
+  - Compile with a LaTeX editor (e.g., Overleaf) or `pdflatex docs/report.tex`.
 
-```
+## Deliverables
+
+- **Task 1**:
+  - `data/processed/cleaned_reviews.csv`
+- **Task 2**:
+  - CSVs: `sentiment_reviews.csv`, `sentiment_aggregates.csv`, `thematic_reviews.csv`, `theme_aggregates.csv`, `amharic_reviews.csv`
+  - Plots: `sentiment_distribution.png`, `theme_counts.png`
+  - Notebook: `task2_analysis.ipynb`
+  - Report: `report.tex`
+  - Pull Request URL
+
+## CI/CD
+
+- GitHub Actions runs linting (`flake8`) and tests on push/PR.
+- Fix linting issues:
+  ```bash
+  pip install flake8 autopep8
+  flake8 . --max-line-length=88 --extend-ignore=E203,E501
+  autopep8 --in-place --aggressive --max-line-length=88 --ignore=E203,E501 scripts/**/*.py tests/*.py
+  ```
+
+## Contributing
+
+1. Create a branch (e.g., `task-2`).
+2. Commit changes with clear messages.
+3. Push and create a PR to `main`.
+4. Ensure CI passes.
+
+## License
+
+[Add license, e.g., MIT]
