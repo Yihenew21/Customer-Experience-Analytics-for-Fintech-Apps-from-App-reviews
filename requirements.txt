@@ -1,6 +1,13 @@
 google-play-scraper==1.2.7
-pandas==2.2.2
+pandas==2.2.3
 matplotlib==3.9.2
 seaborn==0.13.2
 pytest==8.3.2
-jupyter==1.0.0
+vaderSentiment==3.3.2
+textblob==0.18.0.post0
+nltk==3.9.1
+transformers>=4.45.2
+torch==2.6.0+cpu
+spacy>=3.8.0
+scikit-learn==1.5.2
+deep-translator==1.11.4
