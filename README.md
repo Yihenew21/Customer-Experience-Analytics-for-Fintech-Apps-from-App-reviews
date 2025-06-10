@@ -1,110 +1,146 @@
 # Customer Experience Analytics for Fintech Apps
 
-This project provides a comprehensive analysis of customer experiences for the fintech applications of Commercial Bank of Ethiopia (CBE), Bank of Abyssinia (BOA), and Dashen Bank, leveraging Google Play Store reviews. The workflow covers data collection, preprocessing, sentiment and thematic analysis, database integration, and the generation of actionable insights and recommendations.
+This project analyzes user reviews of mobile banking apps for three Ethiopian banks: **Commercial Bank of Ethiopia**, **Bank of Abyssinia**, and **Dashen Bank**. The goal is to extract customer experience insights through data collection, preprocessing, sentiment analysis, and thematic analysis, meeting KPIs of 90%+ sentiment score coverage and identifying 3+ themes per bank.
 
----
+## Project Structure
 
-## 🚀 Project Overview
+- `data/raw/`: Raw scraped reviews.
+- `data/processed/`: Cleaned and processed CSVs (e.g., `cleaned_reviews.csv`, `sentiment_reviews.csv`).
+- `figures/`: Visualization PNGs (e.g., `sentiment_distribution.png`).
+- `scripts/task1_data_collection/`: Task 1 scripts for scraping and preprocessing.
+- `scripts/data/`: Task 2 scripts for analysis and visualization.
+- `scripts/notebooks/`: Jupyter notebooks for exploration (e.g., `task2_analysis.ipynb`).
+- `tests/`: Unit tests for Task 2.
+- `docs/`: Documentation, including LaTeX report (`report.tex`).
+- `requirements.txt`: Python dependencies.
+- `.github/workflows/`: CI/CD configuration for GitHub Actions.
 
-**Objective:**  
-Extract actionable insights and recommendations to enhance user experience for CBE, BOA, and Dashen Bank apps.
+## Prerequisites
 
-**Key Tasks:**
+- **Python**: 3.13
+- **OS**: Windows (adaptable to Linux/macOS)
+- **Virtual Environment**: Recommended
+- **Dependencies**: Listed in `requirements.txt`
+- **Spacy Model**: `en_core_web_sm`
 
-- **Task 1:** Collect and explore review data.
-- **Task 2:** Perform sentiment and thematic analysis.
-- **Task 3:** Store cleaned data in Oracle XE.
-- **Task 4:** Generate insights, recommendations, and a final report.
+## Setup
 
----
-
-## 🛠️ Setup Instructions
-
-### Prerequisites
-
-- Python 3.8+
-- Oracle XE 21c (with `bank_reviews` user and password `Biruk1221`)
-- Virtual environment tool (e.g., `venv`)
-
-### Installation
-
-1. **Clone the repository:**
+1. **Clone Repository**:
 
    ```bash
-   git clone https://github.com/your-username/customer-experience-analytics.git
-   cd customer-experience-analytics
+   git clone https://github.com/Yihenew21/Customer-Experience-Analytics-for-Fintech-Apps-from-App-reviews.git
+   cd Customer-Experience-Analytics-for-Fintech-Apps-from-App-reviews
    ```
 
-2. **Create and activate a virtual environment:**
+2. **Create Virtual Environment**:
 
    ```bash
    python -m venv venv
-   .\venv\Scripts\Activate.ps1  # On Windows
+   .\venv\Scripts\activate  # Windows
    ```
 
-3. **Install dependencies:**
+3. **Install Dependencies**:
 
    ```bash
    pip install -r requirements.txt
    ```
 
-4. **Set up Oracle XE:**
-   - Install Oracle XE and configure the XEPDB1 service.
-   - Create the `bank_reviews` user with password `Biruk1221` via SQL Developer or command line.
+4. **Download Spacy Model**:
 
----
+   ```bash
+   python -m spacy download en_core_web_sm
+   ```
 
-## 📁 Project Structure
+5. **Create Directories**:
+   ```bash
+   mkdir -p data/raw data/processed figures scripts/task1_data_collection scripts/notebooks docs
+   ```
 
+## Task 1: Data Collection and Preprocessing
+
+Collects and cleans Google Play Store reviews for the three banks’ mobile apps.
+
+### Scripts
+
+- `scripts/task1_data_collection/scrape_reviews.py`: Scrapes reviews using `google-play-scraper`.
+- `scripts/task1_data_collection/preprocess_reviews.py`: Cleans reviews (removes duplicates, nulls).
+
+### Run Task 1
+
+1. Update `scrape_reviews.py` with correct app IDs (e.g., `com.cbe.mobilebanking`).
+2. Execute:
+   ```bash
+   python scripts/task1_data_collection/scrape_reviews.py
+   python scripts/task1_data_collection/preprocess_reviews.py
+   ```
+
+### Outputs
+
+- `data/raw/reviews.csv`: Raw scraped reviews.
+- `data/processed/cleaned_reviews.csv`: Cleaned reviews with columns `bank`, `review`, `rating`, `date`.
+
+### Verify
+
+```bash
+python -c "import pandas as pd; df = pd.read_csv('data/processed/cleaned_reviews.csv'); print(df.groupby('bank').size())"
 ```
-customer-experience-analytics/
-├── data/
-│   ├── raw/           # Raw review data (e.g., sentiment_reviews.csv, thematic_reviews.csv)
-│   └── processed/     # Cleaned data (e.g., cleaned_reviews.csv)
-├── reports/           # Reports and documentation (e.g., final_report.docx)
-├── figures/           # Visualization outputs (e.g., sentiment_trends.png)
-├── database/
-├── notbooks/
-│   ├── data_exploration/
-│   ├── task2_analysis/
-│   └── task4_analysis/ # Jupyter notebook for Task 4 analysis
-├── scripts/
-│   ├── task1_data_collection/ # Data collection scripts
-│   ├── analysis/             # Sentiment and thematic analysis scripts
-│   ├── database/             # Database integration scripts
-│   └── task4_analysis/       # Insight generation and reporting scripts
-├── requirements.txt          # Python dependencies
-├── tests/
-│   ├── test_scrape_reviews/
-│   ├── test_sentiment_analysis/
-│   └── test_thematic_analysis/
-└── README.md                 # This file
-```
 
----
+Expected: Counts for Commercial Bank of Ethiopia, Bank of Abyssinia, Dashen Bank.
 
-## 📋 Task Details
+## Task 2: Sentiment and Thematic Analysis
 
-### Task 1: Data Collection
+Analyzes reviews for sentiment and themes, handling Amharic reviews via translation.
 
-- **Purpose:** Gather Google Play Store reviews for CBE, BOA, and Dashen Bank.
-- **Output:** Raw data files in `data/raw/`.
-- **Steps:** Use web scraping or API calls to collect >1,000 reviews, stored as CSV files.
+### Scripts
 
-### Task 2: Sentiment and Thematic Analysis
+- `scripts/data/preprocess_nlp.py`: Preprocesses reviews with Spacy, translates Amharic using `deep-translator`.
+- `scripts/data/sentiment_analysis.py`: Applies VADER and DistilBERT sentiment analysis.
+- `scripts/data/thematic_analysis.py`: Identifies 3+ themes per bank using TF-IDF.
+- `scripts/data/visualize_results.py`: Generates sentiment and theme visualizations.
 
-- **Purpose:** Analyze sentiment and identify themes in reviews.
-- **Tools:** Python, pandas, NLTK (VADER), wordcloud.
-- **Output:** Visualizations in `figures/` (e.g., `sentiment_trends.png`, `keyword_cloud.png`).
+### Run Task 2
 
-**Workflow:**
+1. Ensure `cleaned_reviews.csv` contains all three banks.
+2. Execute:
+   ```bash
+   python scripts/data/preprocess_nlp.py
+   python scripts/data/sentiment_analysis.py
+   python scripts/data/thematic_analysis.py
+   python scripts/data/visualize_results.py
+   ```
 
-1. Preprocess data (clean text, handle missing values).
-2. Apply VADER for sentiment scores.
-3. Generate word clouds for themes.
-4. Save cleaned data to `data/processed/cleaned_reviews.csv`.
+### Outputs
 
-### Task 3: Store Cleaned Data in Oracle XE
+- `data/processed/preprocessed_reviews.csv`: Preprocessed reviews with tokens.
+- `data/processed/sentiment_reviews.csv`: Review-level sentiment scores.
+- `data/processed/sentiment_aggregates.csv`: Aggregated sentiment by bank and rating.
+- `data/processed/thematic_reviews.csv`: Review-level themes.
+- `data/processed/theme_aggregates.csv`: Aggregated theme counts by bank.
+- `data/processed/amharic_reviews.csv`: Untranslated Amharic reviews.
+- `figures/sentiment_distribution.png`: Sentiment distribution by bank.
+- `figures/theme_counts.png`: Theme counts by bank.
+
+### Verify
+
+- Check banks:
+  ```bash
+  python -c "import pandas as pd; df = pd.read_csv('data/processed/sentiment_reviews.csv'); print(df['bank'].unique())"
+  ```
+  Expected: `['Commercial Bank of Ethiopia', 'Bank of Abyssinia', 'Dashen Bank']`
+- Check sentiment coverage:
+  ```bash
+  python -c "import pandas as pd; df = pd.read_csv('data/processed/sentiment_reviews.csv'); print(f'Coverage: {len(df.dropna(subset=[\"vader_label\", \"distilbert_label\"]))/len(df):.2%}')"
+  ```
+  Expected: ≥90%
+- Check themes:
+
+  ```bash
+  python -c "import pandas as pd; df = pd.read_csv('data/processed/theme_aggregates.csv'); print(df.groupby('bank')['themes'].nunique())"
+  ```
+
+  Expected: ≥3 per bank
+
+  ### Task 3: Store Cleaned Data in Oracle XE
 
 - **Purpose:** Efficiently store preprocessed data in a database.
 - **Tools:** Oracle XE, cx_Oracle.
@@ -122,76 +158,62 @@ customer-experience-analytics/
 3. Execute `insert_reviews.py` or append `inserts.sql` to populate the database.
 4. Verify with `SELECT COUNT(*) FROM reviews;` (>1,000 rows).
 
-### Task 4: Insights and Recommendations
+## Tests
 
-- **Purpose:** Derive insights, propose improvements, and document findings.
-- **Output:** `docs/final_report.docx` with visualizations and analysis.
+Run unit tests for Task 2:
 
-**Workflow:**
+```bash
+pytest tests/ -v
+```
 
-1. Analyze visualizations (e.g., rating and sentiment distributions).
-2. Identify drivers (e.g., fast transactions for CBE) and pain points (e.g., crashes for Dashen).
-3. Recommend stability improvements and a budgeting tool.
-4. Address ethical concerns (e.g., negative skew bias).
-5. Compile a 4+ page Word document with images from `figures/`.
+- `tests/test_sentiment_analysis.py`: Tests sentiment analysis.
+- `tests/test_thematic_analysis.py`: Tests thematic analysis.
 
----
+## Exploratory Analysis
 
-## ▶️ Usage
+Explore results in:
 
-1. Collect data and run preprocessing scripts in `scripts/analysis/`.
-2. Store data using scripts in `scripts/task3_database/`.
-3. Perform analysis in `notbooks/task4_analysis/` and generate the report in `reports/`.
-4. Commit changes and push to the repository.
+- `scripts/notebooks/task2_analysis.ipynb`: Visualizes sentiment, themes, and provides insights.
 
----
+Run:
 
-## 📦 Dependencies
+```bash
+jupyter notebook
+```
 
-See `requirements.txt` for the full list. Key packages include:
+## Documentation
 
-- `pandas==2.2.2`
-- `numpy==1.26.4`
-- `matplotlib==3.8.4`
-- `seaborn==0.13.2`
-- `wordcloud==1.9.3`
-- `cx_Oracle==8.3.0`
-- `nltk==3.8.1`
+- `docs/report.tex`: LaTeX report summarizing methodology, results, and recommendations.
+  - Compile with a LaTeX editor (e.g., Overleaf) or `pdflatex docs/report.tex`.
 
----
+## Deliverables
 
-## 🤝 Contributing
+- **Task 1**:
+  - `data/processed/cleaned_reviews.csv`
+- **Task 2**:
+  - CSVs: `sentiment_reviews.csv`, `sentiment_aggregates.csv`, `thematic_reviews.csv`, `theme_aggregates.csv`, `amharic_reviews.csv`
+  - Plots: `sentiment_distribution.png`, `theme_counts.png`
+  - Notebook: `task2_analysis.ipynb`
+  - Report: `report.tex`
+  - Pull Request URL
 
-We welcome contributions! To get started:
+## CI/CD
 
-1. **Fork** this repository.
-2. **Create a feature branch:**
-   ```bash
-   git checkout -b my-feature
-   ```
-3. **Commit your changes** with a clear message:
-   ```bash
-   git commit -m "Add my feature"
-   ```
-4. **Push to your fork:**
-   ```bash
-   git push origin my-feature
-   ```
-5. **Open a Pull Request** describing your changes and their purpose.
+- GitHub Actions runs linting (`flake8`) and tests on push/PR.
+- Fix linting issues:
+  ```bash
+  pip install flake8 autopep8
+  flake8 . --max-line-length=88 --extend-ignore=E203,E501
+  autopep8 --in-place --aggressive --max-line-length=88 --ignore=E203,E501 scripts/**/*.py tests/*.py
+  ```
 
-Please ensure your code follows the project’s style guidelines and passes all tests before submitting a pull request.
+## Contributing
 
----
+1. Create a branch (e.g., `task-2`).
+2. Commit changes with clear messages.
+3. Push and create a PR to `main`.
+4. Ensure CI passes.
 
-## 📄 License
+## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
----
-
-## 🙏 Acknowledgments
-
-- Special thanks to [10 Academy](https://www.10academy.org/) for providing the project framework and guidance.
-- Appreciation to xAI for their support and assistance during development.
-
----
+[Add license, e.g., MIT]
